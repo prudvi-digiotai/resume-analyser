@@ -4,3 +4,4 @@ PyPDF2
 pandas
 openai
 python-dotenv
+python-docx
