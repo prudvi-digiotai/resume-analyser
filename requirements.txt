@@ -1,2 +1,5 @@
 wyge==1.1.15
 streamlit
+PyPDF2
+pandas
+openai
