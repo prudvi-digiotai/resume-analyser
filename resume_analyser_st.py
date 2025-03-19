@@ -1,6 +1,39 @@
 import streamlit as st
 from wyge.prebuilt_agents.resume_analyser import ResumeAnalyzer
 import pandas as pd
+import json
+from datetime import datetime
+
+def create_analysis_report(results):
+    """Create a formatted text report from analysis results."""
+    report = "Resume Analysis Report\n"
+    report += "=" * 50 + "\n"
+    report += f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+
+    for i, result in enumerate(results, 1):
+        report += f"Resume #{i}: {result.get('filename', 'Unknown')}\n"
+        report += "-" * 50 + "\n"
+        report += f"Match Score: {result.get('JD Match', '0%')}\n\n"
+        
+        report += "Profile Summary:\n"
+        report += f"{result.get('Profile Summary', 'No summary available')}\n\n"
+        
+        report += "Missing Keywords:\n"
+        keywords = result.get('MissingKeywords', [])
+        if keywords:
+            for keyword in keywords:
+                report += f"- {keyword}\n"
+        else:
+            report += "None\n"
+        report += "\n"
+        
+        report += "Suggestions:\n"
+        suggestions = result.get('Suggestions', [])
+        for suggestion in suggestions:
+            report += f"- {suggestion}\n"
+        report += "\n" + "=" * 50 + "\n\n"
+    
+    return report
 
 def main():
     st.title("Resume ATS Analysis")
@@ -22,9 +55,13 @@ def main():
         placeholder="Paste the job description here..."
     )
 
-    # Multiple resume upload
+    # Update file uploader to accept both PDF and DOCX
     st.subheader("Upload Resumes")
-    uploaded_files = st.file_uploader("Choose PDF files", type="pdf", accept_multiple_files=True)
+    uploaded_files = st.file_uploader(
+        "Choose PDF or DOCX files", 
+        type=["pdf", "docx"], 
+        accept_multiple_files=True
+    )
     
     # Display count of uploaded files
     if uploaded_files:
@@ -82,6 +119,15 @@ def main():
                     
                     if results:
                         st.success(f"Successfully analyzed {len(results)} resumes!")
+                        
+                        # Add download button for detailed analysis
+                        report = create_analysis_report(results)
+                        st.download_button(
+                            label="Download Detailed Analysis Report",
+                            data=report,
+                            file_name=f"resume_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+                            mime="text/plain"
+                        )
                         
                         # Create a summary table
                         summary_data = []
