@@ -1,4 +1,4 @@
-wyge==1.1.15
+wyge==1.1.16
 streamlit
 PyPDF2
 pandas
